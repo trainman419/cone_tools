@@ -1,0 +1,9 @@
+<stack>
+  <description brief="cone_tools">cone_tools</description>
+  <author>Maintained by </author>
+  <license>BSD</license>  
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/cone_tools</url>
+  <depend stack="ros" />
+
+</stack>
