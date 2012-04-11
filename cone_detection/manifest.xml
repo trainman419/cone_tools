@@ -1,0 +1,20 @@
+<package>
+  <description brief="cone_detection">
+
+     cone_detection
+
+  </description>
+  <author></author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/cone_detection</url>
+  <depend package="roscpp"/>
+  <depend package="sensor_msgs"/>
+  <depend package="cv_bridge"/>
+  <depend package="opencv2"/>
+  <depend package="image_transport"/>
+  <depend package="dynamic_reconfigure"/>
+
+</package>
+
+
