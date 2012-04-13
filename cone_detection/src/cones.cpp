@@ -160,7 +160,7 @@ class ConeDetector {
       void imageCb(const sensor_msgs::ImageConstPtr & msg) {
          try {
             cv_bridge::CvImagePtr cv_ptr;
-            cv_ptr = cv_bridge::toCvCopy(msg, enc::MONO8);
+            cv_ptr = cv_bridge::toCvCopy(msg, enc::BGR8);
 
             std::list<cv::Point2f> centers = extractCones(cv_ptr);
 
@@ -170,7 +170,67 @@ class ConeDetector {
          }
       }
 
+      /* scale image intensity so that we can make more sense of it
+       *
+       * The intention here is to take really washed-out images and get
+       * some useful data from them
+       * 
+       * Assume input image is BGR8
+       */
+      cv::Mat normalize(cv_bridge::CvImagePtr cv_ptr) {
+         cv::Mat out(cv_ptr->image);
+
+         unsigned int histogram[256];
+         unsigned int i;
+         for( i=0; i<256; ++i ) {
+            histogram[i] = 0;
+         }
+
+         unsigned int total = out.rows*out.cols*out.elemSize();
+
+         // build histogram
+         for( i=0; i<total; ++i ) {
+            ++histogram[out.data[i]];
+         }
+
+         // find upper and lower percentiles
+         int min = 0, max = 255;
+         unsigned int cum = 0;
+         for( i=0; i<256; ++i ) {
+            if( cum < total/20 ) {
+               min = i;
+            }
+            cum += histogram[i];
+            if( cum < (19 * total / 20 )) {
+               max = i;
+            }
+         }
+
+         // scale output image
+         for( i=0; i<total; ++i ) {
+            uchar tmp = out.data[i];
+
+            if( tmp < min ) {
+               tmp = 0;
+            } else if( tmp > max ) {
+               tmp = 255;
+            } else {
+               tmp = (256 * (tmp - min))/(max - min);
+            }
+
+            out.data[i] = tmp;
+         }
+
+         return out;
+      }
+
       std::list<cv::Point2f> extractCones(cv_bridge::CvImagePtr cv_ptr) {
+
+         cv::Mat image = normalize(cv_ptr);
+
+         cv_bridge::CvImage debug_img;
+         debug_img.image = image;
+         debug_pub_.publish(debug_img.toImageMsg());
 
          // generic return statement
          std::list<cv::Point2f> centers;
