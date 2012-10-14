@@ -201,10 +201,12 @@ class ConeDetector {
                min = i;
             }
             cum += histogram[i];
-            if( cum < (19 * total / 20 )) {
+            if( cum < (19 * total) / 20 ) {
                max = i;
             }
          }
+
+         ROS_INFO("Historgram range: %d to %d", min, max);
 
          // scale output image
          for( i=0; i<total; ++i ) {
@@ -225,10 +227,12 @@ class ConeDetector {
       }
 
       std::list<cv::Point2f> extractCones(cv_bridge::CvImagePtr cv_ptr) {
+         cv_bridge::CvImage debug_img;
+         debug_img.encoding = cv_ptr->encoding;
+         debug_img.header = cv_ptr->header;
+
 
          cv::Mat image = normalize(cv_ptr);
-
-         cv_bridge::CvImage debug_img;
          debug_img.image = image;
          debug_pub_.publish(debug_img.toImageMsg());
 
